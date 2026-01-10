@@ -17,7 +17,8 @@ export default defineConfig({
       projectId: 'di83dpfu',
       dataset: 'production',
       useCdn: false,
-      studioBasePath: '/studio',
+      // Studio disabled in production - use manage.sanity.io instead
+      // studioBasePath: '/studio',
     }),
   ],
 });
