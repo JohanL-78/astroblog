@@ -1,0 +1,166 @@
+---
+import { sanityClient } from 'sanity:client'
+import type { SanityDocument } from '@sanity/client'
+import { PortableText } from 'astro-portabletext'
+import { urlFor } from '../../utils/sanity'
+
+export async function getStaticPaths() {
+  const POSTS_QUERY = `*[_type == "post" && defined(slug.current)] {
+    'slug': slug.current
+  }`
+  const posts = await sanityClient.fetch<SanityDocument[]>(POSTS_QUERY)
+
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+  }))
+}
+
+const { slug } = Astro.params
+
+const POST_QUERY = `*[_type == "post" && slug.current == $slug][0] {
+  _id,
+  title,
+  slug,
+  excerpt,
+  mainImage,
+  body,
+  publishedAt,
+  author->{
+    name,
+    image,
+    bio
+  }
+}`
+
+const post = await sanityClient.fetch<SanityDocument>(POST_QUERY, { slug })
+
+if (!post) {
+  return Astro.redirect('/404')
+}
+---
+
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>{post.title} - Blog</title>
+    <meta name="description" content={post.excerpt} />
+    <style>
+      body {
+        font-family: system-ui, -apple-system, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+        line-height: 1.6;
+      }
+      .back-link {
+        display: inline-block;
+        margin-bottom: 2rem;
+        color: #666;
+        text-decoration: none;
+      }
+      .back-link:hover {
+        color: #333;
+      }
+      .post-header {
+        margin-bottom: 2rem;
+      }
+      h1 {
+        color: #333;
+        margin-bottom: 1rem;
+        font-size: 2.5rem;
+      }
+      .post-meta {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        color: #666;
+      }
+      .author-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .author-image {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+      .main-image {
+        width: 100%;
+        height: auto;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+      }
+      .prose {
+        font-size: 1.1rem;
+        line-height: 1.8;
+      }
+      .prose p {
+        margin-bottom: 1.5rem;
+      }
+      .prose h2 {
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        color: #333;
+      }
+      .prose h3 {
+        margin-top: 1.5rem;
+        margin-bottom: 0.75rem;
+        color: #444;
+      }
+      .prose ul, .prose ol {
+        margin-bottom: 1.5rem;
+        padding-left: 2rem;
+      }
+      .prose li {
+        margin-bottom: 0.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <a href="/blog" class="back-link">← Retour au blog</a>
+
+    <article>
+      <header class="post-header">
+        <h1>{post.title}</h1>
+
+        <div class="post-meta">
+          {post.author && (
+            <div class="author-info">
+              {post.author.image && (
+                <img
+                  src={urlFor(post.author.image).width(80).height(80).url()}
+                  alt={post.author.name}
+                  class="author-image"
+                />
+              )}
+              <span>{post.author.name}</span>
+            </div>
+          )}
+          {post.publishedAt && (
+            <span>• {new Date(post.publishedAt).toLocaleDateString('fr-FR', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            })}</span>
+          )}
+        </div>
+      </header>
+
+      {post.mainImage && (
+        <img
+          src={urlFor(post.mainImage).width(1600).height(900).url()}
+          alt={post.mainImage.alt || post.title}
+          class="main-image"
+        />
+      )}
+
+      <div class="prose">
+        <PortableText value={post.body} />
+      </div>
+    </article>
+  </body>
+</html>
