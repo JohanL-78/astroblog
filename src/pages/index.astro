@@ -1,102 +1,214 @@
 ---
-import { sanityClient } from 'sanity:client'
-import type { SanityDocument } from '@sanity/client'
+import { sanityClient } from 'sanity:client';
+import type { SanityDocument } from '@sanity/client';
+import { urlFor } from '../utils/sanity';
+import { formatPublishedDate, truncateText } from '../utils/format';
+import ThemeToggle from '../components/ThemeToggle';
+import MobileMenu from '../components/MobileMenu';
+import '../styles/global.css';
 
-const POSTS_COUNT_QUERY = `count(*[_type == "post" && defined(slug.current)])`
-const postsCount = await sanityClient.fetch<number>(POSTS_COUNT_QUERY)
+const POSTS_QUERY = `*[_type == "post" && defined(slug.current)] | order(publishedAt desc) {
+  _id,
+  title,
+  slug,
+  excerpt,
+  mainImage,
+  publishedAt,
+  author->{
+    name,
+    image
+  }
+}`;
+
+const posts = await sanityClient.fetch<SanityDocument[]>(POSTS_QUERY);
 ---
 
+<!DOCTYPE html>
 <html lang="fr">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
-    <title>firstastro - Blog avec Sanity CMS</title>
-    <style>
-      body {
-        font-family: system-ui, -apple-system, sans-serif;
-        margin: 0;
-        padding: 0;
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    <title>Global Climat - Comprendre le changement climatique</title>
+    <meta name="description" content="Une sélection des derniers articles sur le climat, mise à jour régulièrement." />
+    <script is:inline>
+      // Prevent flash of light mode - runs before page renders
+      const theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
       }
-      .container {
-        text-align: center;
-        padding: 2rem;
-        color: white;
-      }
-      h1 {
-        font-size: 3rem;
-        margin-bottom: 1rem;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-      }
-      .subtitle {
-        font-size: 1.25rem;
-        margin-bottom: 3rem;
-        opacity: 0.9;
-      }
-      .links {
-        display: flex;
-        gap: 1.5rem;
-        justify-content: center;
-        flex-wrap: wrap;
-      }
-      .link-card {
-        background: white;
-        color: #333;
-        padding: 2rem;
-        border-radius: 12px;
-        text-decoration: none;
-        min-width: 250px;
-        transition: transform 0.2s, box-shadow 0.2s;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      }
-      .link-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 12px rgba(0,0,0,0.2);
-      }
-      .link-card h2 {
-        margin: 0 0 0.5rem;
-        color: #667eea;
-        font-size: 1.5rem;
-      }
-      .link-card p {
-        margin: 0;
-        color: #666;
-        line-height: 1.6;
-      }
-      .badge {
-        display: inline-block;
-        background: #667eea;
-        color: white;
-        padding: 0.25rem 0.75rem;
-        border-radius: 12px;
-        font-size: 0.85rem;
-        margin-top: 0.5rem;
-      }
-    </style>
+    </script>
   </head>
-  <body>
-    <div class="container">
-      <h1>🚀 Bienvenue sur firstastro</h1>
-      <p class="subtitle">Votre blog propulsé par Astro et Sanity CMS</p>
+  <body class="min-h-screen bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white transition-colors duration-300">
 
-      <div class="links">
-        <a href="/blog" class="link-card">
-          <h2>📝 Blog</h2>
-          <p>Découvrez tous les articles</p>
-          {postsCount > 0 && (
-            <span class="badge">{postsCount} article{postsCount > 1 ? 's' : ''}</span>
-          )}
+    {/* --- NAV BAR --- */}
+    <nav class="fixed top-0 left-0 right-0 z-50 flex h-20 items-center justify-between border-b border-gray-200 dark:border-white/10 bg-white/90 dark:bg-black/90 px-6 backdrop-blur-sm lg:px-12">
+      <div class="flex items-center gap-12">
+        <a href="/" class="flex items-center gap-3 text-xl font-medium tracking-tighter">
+          
+          GLOBAL <span class="text-gray-500 dark:text-neutral-500">CLIMAT</span>
         </a>
-
-        <a href="/studio" class="link-card">
-          <h2>✏️ Studio</h2>
-          <p>Gérez votre contenu avec Sanity Studio</p>
-        </a>
+        <div class="hidden gap-8 text-[11px] font-medium uppercase tracking-[0.2em] lg:flex text-gray-600 dark:text-neutral-400">
+          <a href="#articles" class="hover:opacity-70 transition-opacity">Articles</a>
+          <a href="#about" class="hover:opacity-70 transition-opacity">À Propos</a>
+        </div>
       </div>
-    </div>
+      <div class="flex items-center gap-4">
+        <a
+          href="mailto:contact@global-climat.com"
+          class="hidden text-[11px] font-medium uppercase tracking-[0.2em] lg:block text-gray-600 dark:text-neutral-400 hover:opacity-70 transition-opacity"
+        >
+          Contact
+        </a>
+        <ThemeToggle client:load />
+        <MobileMenu client:load />
+      </div>
+    </nav>
+
+    <main class="pt-20">
+      {/* --- HERO SECTION --- */}
+      <section class="relative min-h-[90vh] w-full border-b border-gray-200 dark:border-white/10">
+        <div class="grid h-full lg:grid-cols-[1fr_400px]">
+          {/* Colonne Gauche : Texte */}
+          <div class="flex flex-col justify-between p-6 pb-12 lg:p-12 lg:pb-20">
+            <div class="mt-10 space-y-6 lg:mt-8">
+              <p class="text-[11px] font-medium uppercase tracking-[0.3em] text-gray-600 dark:text-neutral-400">
+                Science — Actualité — Analyses
+              </p>
+              <h1 class="max-w-4xl text-6xl font-medium leading-[0.95] tracking-tight lg:text-8xl font-display">
+                Comprendre <br />
+                <span class="text-gray-500 dark:text-neutral-500 italic">le changement</span> <br />
+                climatique.
+              </h1>
+            </div>
+
+            <div class="mt-12 max-w-lg lg:mt-10">
+              <p class="text-sm font-light leading-relaxed text-gray-600 dark:text-neutral-400 lg:text-base">
+                Une sélection des derniers articles publiés sur Global Climat, mise à jour régulièrement
+                pour rester informé des avancées climatiques, politiques et scientifiques.
+              </p>
+              <div class="mt-8 flex items-center gap-4">
+                <div class="h-px w-12 bg-gray-900 dark:bg-white"></div>
+                <a href="#articles" class="text-xs font-semibold uppercase tracking-[0.2em] hover:underline">
+                  Découvrir les articles
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* Colonne Droite : Image */}
+          <div class="relative hidden h-full border-l border-gray-200 dark:border-white/10 lg:block">
+            <img
+              src="https://images.unsplash.com/photo-1700173318258-3c0134576743?q=80&w=2664&auto=format&fit=crop"
+              alt="Climate research"
+              class="absolute inset-0 h-full w-full object-cover grayscale"
+            />
+            <div class="absolute inset-0 bg-white/5 dark:bg-black/20"></div>
+            {/* Badge flottant en bas */}
+            <div class="absolute bottom-0 left-0 w-full border-t border-gray-200 dark:border-white/10 bg-white/80 dark:bg-black/80 p-8 backdrop-blur-md">
+              <p class="font-display text-3xl text-gray-900 dark:text-white">{posts.length}</p>
+              <p class="text-[10px] uppercase tracking-widest text-gray-600 dark:text-neutral-400">Articles disponibles</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* --- ARTICLES SECTION --- */}
+      <section id="articles" class="bg-white dark:bg-[#0a0a0a] py-24 lg:py-32">
+        <div class="mx-auto max-w-7xl px-6 lg:px-12">
+          <div class="mb-16 flex items-end justify-between border-b border-gray-200 dark:border-white/10 pb-6">
+            <h2 class="text-4xl lg:text-5xl font-display">
+              Articles récents
+            </h2>
+            <p class="hidden text-right text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-neutral-400 lg:block">
+              {posts.length} publications
+            </p>
+          </div>
+
+          <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {posts.map((post) => {
+              const publishedAt = post.publishedAt ? formatPublishedDate(post.publishedAt) : null;
+              const excerpt = post.excerpt ? truncateText(post.excerpt, 210) : "Découvrez les détails de cette actualité climatique.";
+
+              return (
+                <div class="group relative border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-[#0f0f0f] hover:bg-gray-100 dark:hover:bg-white/5 flex flex-col overflow-hidden transition-all duration-300">
+                  {/* Image */}
+                  <div class="relative aspect-video w-full overflow-hidden">
+                    {post.mainImage ? (
+                      <img
+                        src={urlFor(post.mainImage).width(600).height(400).url()}
+                        alt={post.mainImage.alt || post.title}
+                        class="h-full w-full object-cover transition-all duration-500 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div class="h-full w-full bg-gray-200 dark:bg-neutral-900 flex items-center justify-center">
+                        <span class="text-gray-600 dark:text-neutral-400">Global Climat</span>
+                      </div>
+                    )}
+                    {publishedAt && (
+                      <div class="absolute left-4 top-4 border border-gray-200 dark:border-white/10 bg-white/80 dark:bg-black/80 px-2 py-1 text-[10px] uppercase tracking-wider backdrop-blur-sm">
+                        {publishedAt}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Content */}
+                  <div class="flex flex-1 flex-col p-6">
+                    <h3 class="mb-4 text-xl font-medium leading-tight text-gray-900 dark:text-white group-hover:opacity-70 transition-opacity font-display">
+                      {post.title}
+                    </h3>
+                    <p class="mb-6 flex-1 text-sm leading-relaxed text-gray-600 dark:text-neutral-400">
+                      {excerpt}
+                    </p>
+
+                    {/* Footer */}
+                    <div class="flex items-center justify-between border-t border-gray-200 dark:border-white/10 pt-4">
+                      <a
+                        href={`/blog/${post.slug.current}`}
+                        class="text-xs font-semibold uppercase tracking-[0.2em] text-gray-900 dark:text-white hover:opacity-70 transition-opacity flex items-center gap-2"
+                      >
+                        Lire
+                        <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17L17 7M17 7H7M17 7V17" />
+                        </svg>
+                      </a>
+                      {post.author?.name && (
+                        <span class="text-xs text-gray-600 dark:text-neutral-400">
+                          {post.author.name}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* --- FOOTER --- */}
+      <footer class="bg-gray-50 dark:bg-[#121212] border-t border-gray-200 dark:border-white/10 py-12 px-6 lg:px-12">
+        <div class="mx-auto max-w-7xl grid md:grid-cols-3 gap-12">
+          <div class="md:col-span-2">
+            <h2 class="text-4xl md:text-5xl font-medium mb-4 font-display">
+              Global Climat
+            </h2>
+            <p class="text-sm text-gray-600 dark:text-neutral-400 max-w-md">
+              Veille scientifique et actualités sur le changement climatique.
+            </p>
+          </div>
+          <div>
+            <h4 class="text-xs font-bold uppercase tracking-[0.2em] text-gray-600 dark:text-neutral-400 mb-4">Contact</h4>
+            <p class="text-lg text-gray-900 dark:text-white">contact@global-climat.com</p>
+          </div>
+        </div>
+        <div class="mx-auto max-w-7xl mt-12 pt-6 border-t border-gray-200 dark:border-white/10 flex justify-between items-center text-[10px] uppercase tracking-widest text-gray-600 dark:text-neutral-400">
+          <span>© 2026 Global Climat</span>
+          <div class="flex gap-4">
+            <a href="#" class="hover:opacity-70 transition-opacity">Mentions Légales</a>
+            <a href="#" class="hover:opacity-70 transition-opacity">Crédits</a>
+          </div>
+        </div>
+      </footer>
+    </main>
   </body>
 </html>

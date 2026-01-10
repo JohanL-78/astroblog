@@ -1,21 +1,25 @@
 ---
-import { sanityClient } from 'sanity:client'
-import type { SanityDocument } from '@sanity/client'
-import { PortableText } from 'astro-portabletext'
-import { urlFor } from '../../utils/sanity'
+import { sanityClient } from 'sanity:client';
+import type { SanityDocument } from '@sanity/client';
+import { PortableText } from 'astro-portabletext';
+import { urlFor } from '../../utils/sanity';
+import { formatPublishedDate } from '../../utils/format';
+import ThemeToggle from '../../components/ThemeToggle';
+import MobileMenu from '../../components/MobileMenu';
+import '../../styles/global.css';
 
 export async function getStaticPaths() {
   const POSTS_QUERY = `*[_type == "post" && defined(slug.current)] {
     'slug': slug.current
-  }`
-  const posts = await sanityClient.fetch<SanityDocument[]>(POSTS_QUERY)
+  }`;
+  const posts = await sanityClient.fetch<SanityDocument[]>(POSTS_QUERY);
 
   return posts.map((post) => ({
     params: { slug: post.slug },
-  }))
+  }));
 }
 
-const { slug } = Astro.params
+const { slug } = Astro.params;
 
 const POST_QUERY = `*[_type == "post" && slug.current == $slug][0] {
   _id,
@@ -30,137 +34,160 @@ const POST_QUERY = `*[_type == "post" && slug.current == $slug][0] {
     image,
     bio
   }
-}`
+}`;
 
-const post = await sanityClient.fetch<SanityDocument>(POST_QUERY, { slug })
+const post = await sanityClient.fetch<SanityDocument>(POST_QUERY, { slug });
 
 if (!post) {
-  return Astro.redirect('/404')
+  return Astro.redirect('/404');
 }
+
+const publishedAt = post.publishedAt ? formatPublishedDate(post.publishedAt) : null;
 ---
 
+<!DOCTYPE html>
 <html lang="fr">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
-    <title>{post.title} - Blog</title>
-    <meta name="description" content={post.excerpt} />
-    <style>
-      body {
-        font-family: system-ui, -apple-system, sans-serif;
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 2rem;
-        line-height: 1.6;
+    <title>{post.title} - Global Climat</title>
+    <meta name="description" content={post.excerpt || post.title} />
+    <script is:inline>
+      // Prevent flash of light mode - runs before page renders
+      const theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
       }
-      .back-link {
-        display: inline-block;
-        margin-bottom: 2rem;
-        color: #666;
-        text-decoration: none;
-      }
-      .back-link:hover {
-        color: #333;
-      }
-      .post-header {
-        margin-bottom: 2rem;
-      }
-      h1 {
-        color: #333;
-        margin-bottom: 1rem;
-        font-size: 2.5rem;
-      }
-      .post-meta {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 2rem;
-        color: #666;
-      }
-      .author-info {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
-      .author-image {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        object-fit: cover;
-      }
-      .main-image {
-        width: 100%;
-        height: auto;
-        border-radius: 8px;
-        margin-bottom: 2rem;
-      }
-      .prose {
-        font-size: 1.1rem;
-        line-height: 1.8;
-      }
-      .prose p {
-        margin-bottom: 1.5rem;
-      }
-      .prose h2 {
-        margin-top: 2rem;
-        margin-bottom: 1rem;
-        color: #333;
-      }
-      .prose h3 {
-        margin-top: 1.5rem;
-        margin-bottom: 0.75rem;
-        color: #444;
-      }
-      .prose ul, .prose ol {
-        margin-bottom: 1.5rem;
-        padding-left: 2rem;
-      }
-      .prose li {
-        margin-bottom: 0.5rem;
-      }
-    </style>
+    </script>
   </head>
-  <body>
-    <a href="/blog" class="back-link">← Retour au blog</a>
+  <body class="min-h-screen bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white transition-colors duration-300">
 
-    <article>
-      <header class="post-header">
-        <h1>{post.title}</h1>
+    {/* --- NAV BAR --- */}
+    <nav class="fixed top-0 left-0 right-0 z-50 flex h-20 items-center justify-between border-b border-gray-200 dark:border-white/10 bg-white/90 dark:bg-black/90 px-6 backdrop-blur-sm lg:px-12">
+      <div class="flex items-center gap-12">
+        <a href="/" class="flex items-center gap-3 text-xl font-medium tracking-tighter">
+          GLOBAL <span class="text-gray-500 dark:text-neutral-500">CLIMAT</span>
+        </a>
+        <div class="hidden gap-8 text-[11px] font-medium uppercase tracking-[0.2em] lg:flex text-gray-600 dark:text-neutral-400">
+          <a href="/#articles" class="hover:opacity-70 transition-opacity">Articles</a>
+          <a href="#about" class="hover:opacity-70 transition-opacity">À Propos</a>
+        </div>
+      </div>
+      <div class="flex items-center gap-4">
+        <a
+          href="mailto:contact@global-climat.com"
+          class="hidden text-[11px] font-medium uppercase tracking-[0.2em] lg:block text-gray-600 dark:text-neutral-400 hover:opacity-70 transition-opacity"
+        >
+          Contact
+        </a>
+        <ThemeToggle client:load />
+        <MobileMenu client:load />
+      </div>
+    </nav>
 
-        <div class="post-meta">
+    <main class="pt-20">
+      {/* Back Link */}
+      <div class="max-w-4xl mx-auto px-6 lg:px-12 py-8">
+        <a
+          href="/"
+          class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+          Retour aux articles
+        </a>
+      </div>
+
+      {/* Article Header */}
+      <article class="max-w-4xl mx-auto px-6 lg:px-12 pb-24">
+        <header class="mb-12">
+          {/* Meta */}
+          <div class="flex items-center gap-4 mb-6 text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-neutral-400">
+            {publishedAt && <span>{publishedAt}</span>}
+          </div>
+
+          {/* Title */}
+          <h1 class="text-5xl lg:text-7xl font-medium leading-[0.95] tracking-tight mb-8 font-display">
+            {post.title}
+          </h1>
+
+          {/* Excerpt */}
+          {post.excerpt && (
+            <p class="text-xl text-gray-600 dark:text-neutral-400 leading-relaxed mb-8">
+              {post.excerpt}
+            </p>
+          )}
+
+          {/* Author */}
           {post.author && (
-            <div class="author-info">
+            <div class="flex items-center gap-4 pt-8 border-t border-gray-200 dark:border-white/10">
               {post.author.image && (
                 <img
-                  src={urlFor(post.author.image).width(80).height(80).url()}
+                  src={urlFor(post.author.image).width(64).height(64).url()}
                   alt={post.author.name}
-                  class="author-image"
+                  class="w-12 h-12 rounded-full object-cover"
                 />
               )}
-              <span>{post.author.name}</span>
+              <div>
+                <p class="font-medium text-gray-900 dark:text-white">{post.author.name}</p>
+                <p class="text-sm text-gray-600 dark:text-neutral-400">Auteur</p>
+              </div>
             </div>
           )}
-          {post.publishedAt && (
-            <span>• {new Date(post.publishedAt).toLocaleDateString('fr-FR', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            })}</span>
-          )}
+        </header>
+
+        {/* Featured Image */}
+        {post.mainImage && (
+          <div class="mb-12 -mx-6 lg:mx-0">
+            <img
+              src={urlFor(post.mainImage).width(1600).height(900).url()}
+              alt={post.mainImage.alt || post.title}
+              class="w-full h-auto rounded-none lg:rounded-lg"
+            />
+          </div>
+        )}
+
+        {/* Article Content */}
+        <div class="prose prose-lg dark:prose-invert max-w-none
+          prose-headings:font-display prose-headings:font-medium prose-headings:tracking-tight
+          prose-h2:text-4xl prose-h2:mt-16 prose-h2:mb-6
+          prose-h3:text-2xl prose-h3:mt-12 prose-h3:mb-4
+          prose-p:text-gray-700 dark:prose-p:text-neutral-300 prose-p:leading-relaxed prose-p:mb-6
+          prose-a:text-gray-900 dark:prose-a:text-white prose-a:underline prose-a:decoration-gray-400 dark:prose-a:decoration-neutral-600 hover:prose-a:decoration-gray-900 dark:hover:prose-a:decoration-white
+          prose-strong:text-gray-900 dark:prose-strong:text-white prose-strong:font-medium
+          prose-ul:my-8 prose-ol:my-8
+          prose-li:text-gray-700 dark:prose-li:text-neutral-300 prose-li:my-2
+          prose-blockquote:border-l-gray-900 dark:prose-blockquote:border-l-white prose-blockquote:text-gray-900 dark:prose-blockquote:text-white prose-blockquote:italic
+        ">
+          <PortableText value={post.body} />
         </div>
-      </header>
+      </article>
 
-      {post.mainImage && (
-        <img
-          src={urlFor(post.mainImage).width(1600).height(900).url()}
-          alt={post.mainImage.alt || post.title}
-          class="main-image"
-        />
-      )}
-
-      <div class="prose">
-        <PortableText value={post.body} />
-      </div>
-    </article>
+      {/* --- FOOTER --- */}
+      <footer class="bg-gray-50 dark:bg-[#121212] border-t border-gray-200 dark:border-white/10 py-12 px-6 lg:px-12">
+        <div class="mx-auto max-w-7xl grid md:grid-cols-3 gap-12">
+          <div class="md:col-span-2">
+            <h2 class="text-4xl md:text-5xl font-medium mb-4 font-display">
+              Global Climat
+            </h2>
+            <p class="text-sm text-gray-600 dark:text-neutral-400 max-w-md">
+              Veille scientifique et actualités sur le changement climatique.
+            </p>
+          </div>
+          <div>
+            <h4 class="text-xs font-bold uppercase tracking-[0.2em] text-gray-600 dark:text-neutral-400 mb-4">Contact</h4>
+            <p class="text-lg text-gray-900 dark:text-white">contact@global-climat.com</p>
+          </div>
+        </div>
+        <div class="mx-auto max-w-7xl mt-12 pt-6 border-t border-gray-200 dark:border-white/10 flex justify-between items-center text-[10px] uppercase tracking-widest text-gray-600 dark:text-neutral-400">
+          <span>© 2026 Global Climat</span>
+          <div class="flex gap-4">
+            <a href="#" class="hover:opacity-70 transition-opacity">Mentions Légales</a>
+            <a href="#" class="hover:opacity-70 transition-opacity">Crédits</a>
+          </div>
+        </div>
+      </footer>
+    </main>
   </body>
 </html>
