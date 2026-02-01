@@ -1,6 +1,7 @@
 ---
 import { sanityClient } from 'sanity:client';
 import type { SanityDocument } from '@sanity/client';
+import { Image } from 'astro:assets';
 import { urlFor } from '../utils/sanity';
 import { formatPublishedDate, truncateText } from '../utils/format';
 import ThemeToggle from '../components/ThemeToggle';
@@ -30,6 +31,12 @@ const posts = await sanityClient.fetch<SanityDocument[]>(POSTS_QUERY);
     <meta name="viewport" content="width=device-width" />
     <title>Global Climat - Comprendre le changement climatique</title>
     <meta name="description" content="Une sélection des derniers articles sur le climat, mise à jour régulièrement." />
+    <link rel="preload" href="/fonts/inter-400-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/playfair-400-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preconnect" href="https://cdn.sanity.io" crossorigin />
+    <link rel="preconnect" href="https://images.unsplash.com" crossorigin />
+    <link rel="dns-prefetch" href="https://cdn.sanity.io" />
+    <link rel="dns-prefetch" href="https://images.unsplash.com" />
     <script is:inline>
       // Prevent flash of light mode - runs before page renders
       const theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
@@ -59,8 +66,8 @@ const posts = await sanityClient.fetch<SanityDocument[]>(POSTS_QUERY);
         >
           Contact
         </a>
-        <ThemeToggle client:load />
-        <MobileMenu client:load />
+        <ThemeToggle client:idle />
+        <MobileMenu client:visible />
       </div>
     </nav>
 
@@ -98,8 +105,16 @@ const posts = await sanityClient.fetch<SanityDocument[]>(POSTS_QUERY);
           {/* Colonne Droite : Image */}
           <div class="relative hidden h-full border-l border-gray-200 dark:border-white/10 lg:block">
             <img
-              src="https://images.unsplash.com/photo-1700173318258-3c0134576743?q=80&w=2664&auto=format&fit=crop"
+              src="https://images.unsplash.com/photo-1700173318258-3c0134576743?q=70&w=600&auto=format&fit=crop"
+              srcset="https://images.unsplash.com/photo-1700173318258-3c0134576743?q=70&w=600&auto=format&fit=crop 600w,
+                      https://images.unsplash.com/photo-1700173318258-3c0134576743?q=70&w=800&auto=format&fit=crop 800w"
+              sizes="(max-width: 1024px) 0px, 400px"
               alt="Climate research"
+              width="400"
+              height="900"
+              loading="eager"
+              decoding="async"
+              fetchpriority="high"
               class="absolute inset-0 h-full w-full object-cover grayscale"
             />
             <div class="absolute inset-0 bg-white/5 dark:bg-black/20"></div>
@@ -137,6 +152,10 @@ const posts = await sanityClient.fetch<SanityDocument[]>(POSTS_QUERY);
                       <img
                         src={urlFor(post.mainImage).width(600).height(400).url()}
                         alt={post.mainImage.alt || post.title}
+                        width="600"
+                        height="400"
+                        loading="lazy"
+                        decoding="async"
                         class="h-full w-full object-cover transition-all duration-500 group-hover:scale-105"
                       />
                     ) : (

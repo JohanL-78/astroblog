@@ -1,0 +1,57 @@
+/*
+  # Sécurité - Headers HTTP pour score Lighthouse 100/100
+
+  # Empêche le site d'être intégré dans une iframe (protection clickjacking)
+  X-Frame-Options: DENY
+
+  # Empêche le sniffing MIME (force le navigateur à respecter le Content-Type)
+  X-Content-Type-Options: nosniff
+
+  # Active la protection XSS du navigateur
+  X-XSS-Protection: 1; mode=block
+
+  # Contrôle les informations de référence envoyées
+  Referrer-Policy: strict-origin-when-cross-origin
+
+  # Désactive les permissions sensibles (caméra, micro, géolocalisation)
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
+
+  # Force HTTPS pour toutes les futures visites (1 an)
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+
+  # Content Security Policy - Adapté pour Astro + Sanity + Unsplash (fonts auto-hébergées)
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' https://cdn.sanity.io https://images.unsplash.com data: blob:; connect-src 'self' https://*.sanity.io https://*.algolia.net; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://tally.so; object-src 'none'
+
+  # Cross-Origin Opener Policy (isole le contexte de navigation)
+  Cross-Origin-Opener-Policy: same-origin
+
+  # Cross-Origin Resource Policy
+  Cross-Origin-Resource-Policy: same-origin
+
+# Headers spécifiques pour les assets statiques (cache + sécurité)
+/*.css
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.js
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.woff2
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.webp
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.png
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.jpg
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.svg
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.ttf
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.woff2
+  Cache-Control: public, max-age=31536000, immutable

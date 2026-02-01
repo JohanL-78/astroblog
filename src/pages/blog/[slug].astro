@@ -52,6 +52,10 @@ const publishedAt = post.publishedAt ? formatPublishedDate(post.publishedAt) : n
     <meta name="viewport" content="width=device-width" />
     <title>{post.title} - Global Climat</title>
     <meta name="description" content={post.excerpt || post.title} />
+    <link rel="preload" href="/fonts/inter-400-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/playfair-400-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preconnect" href="https://cdn.sanity.io" crossorigin />
+    <link rel="dns-prefetch" href="https://cdn.sanity.io" />
     <script is:inline>
       // Prevent flash of light mode - runs before page renders
       const theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
@@ -80,8 +84,8 @@ const publishedAt = post.publishedAt ? formatPublishedDate(post.publishedAt) : n
         >
           Contact
         </a>
-        <ThemeToggle client:load />
-        <MobileMenu client:load />
+        <ThemeToggle client:idle />
+        <MobileMenu client:visible />
       </div>
     </nav>
 
@@ -126,6 +130,10 @@ const publishedAt = post.publishedAt ? formatPublishedDate(post.publishedAt) : n
                 <img
                   src={urlFor(post.author.image).width(64).height(64).url()}
                   alt={post.author.name}
+                  width="48"
+                  height="48"
+                  loading="eager"
+                  decoding="async"
                   class="w-12 h-12 rounded-full object-cover"
                 />
               )}
@@ -143,6 +151,10 @@ const publishedAt = post.publishedAt ? formatPublishedDate(post.publishedAt) : n
             <img
               src={urlFor(post.mainImage).width(1600).height(900).url()}
               alt={post.mainImage.alt || post.title}
+              width="1600"
+              height="900"
+              loading="eager"
+              decoding="async"
               class="w-full h-auto rounded-none lg:rounded-lg"
             />
           </div>
