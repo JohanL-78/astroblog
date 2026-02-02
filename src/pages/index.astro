@@ -74,7 +74,7 @@ const posts = await sanityClient.fetch<SanityDocument[]>(POSTS_QUERY);
     <main class="pt-20">
       {/* --- HERO SECTION --- */}
       <section class="relative min-h-[90vh] w-full border-b border-gray-200 dark:border-white/10">
-        <div class="grid h-full lg:grid-cols-[1fr_400px]">
+        <div class="grid h-full lg:grid-cols-[1fr_520px]">
           {/* Colonne Gauche : Texte */}
           <div class="flex flex-col justify-between p-6 pb-12 lg:p-12 lg:pb-20">
             <div class="mt-10 space-y-6 lg:mt-8">
@@ -105,12 +105,13 @@ const posts = await sanityClient.fetch<SanityDocument[]>(POSTS_QUERY);
           {/* Colonne Droite : Image */}
           <div class="relative hidden h-full border-l border-gray-200 dark:border-white/10 lg:block">
             <img
-              src="https://images.unsplash.com/photo-1700173318258-3c0134576743?q=70&w=600&auto=format&fit=crop"
-              srcset="https://images.unsplash.com/photo-1700173318258-3c0134576743?q=70&w=600&auto=format&fit=crop 600w,
-                      https://images.unsplash.com/photo-1700173318258-3c0134576743?q=70&w=800&auto=format&fit=crop 800w"
-              sizes="(max-width: 1024px) 0px, 400px"
+              src="https://images.unsplash.com/photo-1700173318258-3c0134576743?q=80&w=600&auto=format&fit=crop"
+              srcset="https://images.unsplash.com/photo-1700173318258-3c0134576743?q=80&w=600&auto=format&fit=crop 600w,
+                      https://images.unsplash.com/photo-1700173318258-3c0134576743?q=80&w=800&auto=format&fit=crop 800w,
+                      https://images.unsplash.com/photo-1700173318258-3c0134576743?q=80&w=1200&auto=format&fit=crop 1200w"
+              sizes="(max-width: 1024px) 0px, 520px"
               alt="Climate research"
-              width="400"
+              width="520"
               height="900"
               loading="eager"
               decoding="async"
