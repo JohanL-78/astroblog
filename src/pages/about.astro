@@ -1,0 +1,123 @@
+---
+import ThemeToggle from '../components/ThemeToggle';
+import MobileMenu from '../components/MobileMenu';
+import '../styles/global.css';
+---
+
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>À Propos - Global Climat</title>
+    <meta name="description" content="Global-climat.com recense depuis 2013 l'actualité du changement climatique et les avancées de la recherche." />
+    <link rel="preload" href="/fonts/inter-400-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/playfair-400-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <script is:inline>
+      const theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      }
+    </script>
+  </head>
+  <body class="min-h-screen bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white transition-colors duration-300">
+
+    {/* --- NAV BAR --- */}
+    <nav class="fixed top-0 left-0 right-0 z-50 flex h-20 items-center justify-between border-b border-gray-200 dark:border-white/10 bg-white/90 dark:bg-black/90 px-6 backdrop-blur-sm lg:px-12">
+      <div class="flex items-center gap-12">
+        <a href="/" class="flex items-center gap-3 text-xl font-medium tracking-tighter">
+          GLOBAL <span class="text-gray-500 dark:text-neutral-500">CLIMAT</span>
+        </a>
+        <div class="hidden gap-8 text-[11px] font-medium uppercase tracking-[0.2em] lg:flex text-gray-600 dark:text-neutral-400">
+          <a href="/#articles" class="hover:opacity-70 transition-opacity">Articles</a>
+          <a href="/about" class="hover:opacity-70 transition-opacity">À Propos</a>
+        </div>
+      </div>
+      <div class="flex items-center gap-4">
+        <a
+          href="mailto:contact@global-climat.com"
+          class="hidden text-[11px] font-medium uppercase tracking-[0.2em] lg:block text-gray-600 dark:text-neutral-400 hover:opacity-70 transition-opacity"
+        >
+          Contact
+        </a>
+        <ThemeToggle client:idle />
+        <MobileMenu client:visible />
+      </div>
+    </nav>
+
+    <main class="pt-20">
+      {/* --- HERO --- */}
+      <section class="relative w-full border-b border-gray-200 dark:border-white/10 py-24 lg:py-32">
+        <div class="mx-auto max-w-7xl px-6 lg:px-12">
+          <p class="text-[11px] font-medium uppercase tracking-[0.3em] text-gray-600 dark:text-neutral-400 mb-6">
+            À propos
+          </p>
+          <h1 class="max-w-4xl text-5xl font-medium leading-[0.95] tracking-tight lg:text-7xl font-display">
+            Comprendre le climat, <br />
+            <span class="text-gray-500 dark:text-neutral-500 italic">depuis 2013.</span>
+          </h1>
+        </div>
+      </section>
+
+      {/* --- CONTENT --- */}
+      <section class="bg-white dark:bg-[#0a0a0a] py-24 lg:py-32">
+        <div class="mx-auto max-w-7xl px-6 lg:px-12">
+          <div class="grid gap-16 lg:grid-cols-2">
+            {/* Le projet */}
+            <div>
+              <div class="mb-8 flex items-center gap-4">
+                <div class="h-px w-12 bg-gray-900 dark:bg-white"></div>
+                <h2 class="text-xs font-semibold uppercase tracking-[0.2em]">Le projet</h2>
+              </div>
+              <p class="text-lg leading-relaxed text-gray-600 dark:text-neutral-400">
+                Global-climat.com recense depuis 2013 l'actualité du changement climatique et les avancées de la recherche dans ce domaine.
+              </p>
+              <p class="mt-6 text-lg leading-relaxed text-gray-600 dark:text-neutral-400">
+                Pour cela, différents types de sources sont utilisées : revues scientifiques (Nature, Geophysical Research Letters, Science...), travaux de chercheurs, agences d'information ou organismes spécifiquement dédiés au climat comme la NOAA ou la NASA.
+              </p>
+            </div>
+
+            {/* L'approche */}
+            <div>
+              <div class="mb-8 flex items-center gap-4">
+                <div class="h-px w-12 bg-gray-900 dark:bg-white"></div>
+                <h2 class="text-xs font-semibold uppercase tracking-[0.2em]">L'approche</h2>
+              </div>
+              <p class="text-lg leading-relaxed text-gray-600 dark:text-neutral-400">
+                L'objectif est de rendre accessible au plus grand nombre les résultats de la recherche scientifique sur le climat, en privilégiant la rigueur et la clarté.
+              </p>
+              <p class="mt-6 text-lg leading-relaxed text-gray-600 dark:text-neutral-400">
+                Les articles s'appuient sur des données vérifiées et des publications issues de la littérature scientifique internationale.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* --- FOOTER --- */}
+      <footer class="bg-gray-50 dark:bg-[#121212] border-t border-gray-200 dark:border-white/10 py-12 px-6 lg:px-12">
+        <div class="mx-auto max-w-7xl grid md:grid-cols-3 gap-12">
+          <div class="md:col-span-2">
+            <h2 class="text-4xl md:text-5xl font-medium mb-4 font-display">
+              Global Climat
+            </h2>
+            <p class="text-sm text-gray-600 dark:text-neutral-400 max-w-md">
+              Veille scientifique et actualités sur le changement climatique.
+            </p>
+          </div>
+          <div>
+            <h4 class="text-xs font-bold uppercase tracking-[0.2em] text-gray-600 dark:text-neutral-400 mb-4">Contact</h4>
+            <p class="text-lg text-gray-900 dark:text-white">contact@global-climat.com</p>
+          </div>
+        </div>
+        <div class="mx-auto max-w-7xl mt-12 pt-6 border-t border-gray-200 dark:border-white/10 flex justify-between items-center text-[10px] uppercase tracking-widest text-gray-600 dark:text-neutral-400">
+          <span>© 2026 Global Climat</span>
+          <div class="flex gap-4">
+            <a href="#" class="hover:opacity-70 transition-opacity">Mentions Légales</a>
+            <a href="#" class="hover:opacity-70 transition-opacity">Crédits</a>
+          </div>
+        </div>
+      </footer>
+    </main>
+  </body>
+</html>
