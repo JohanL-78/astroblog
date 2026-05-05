@@ -20,7 +20,7 @@
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
 
   # Content Security Policy - Adapté pour Astro + Sanity + Unsplash (fonts auto-hébergées)
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' https://cdn.sanity.io https://images.unsplash.com data: blob:; connect-src 'self' https://*.sanity.io https://*.algolia.net; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://tally.so; object-src 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' https://cdn.sanity.io https://images.unsplash.com https://i.ytimg.com data: blob:; connect-src 'self' https://*.sanity.io https://*.algolia.net; frame-src https://www.youtube.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://tally.so; object-src 'none'
 
   # Cross-Origin Opener Policy (isole le contexte de navigation)
   Cross-Origin-Opener-Policy: same-origin
