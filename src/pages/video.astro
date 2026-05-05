@@ -1,0 +1,89 @@
+---
+import ThemeToggle from '../components/ThemeToggle';
+import MobileMenu from '../components/MobileMenu';
+import '../styles/global.css';
+
+const videoId = Astro.url.searchParams.get('v') || 'TUinL0C_zgE';
+const title = Astro.url.searchParams.get('title') || 'Vidéo';
+---
+
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>{title} - Global Climat</title>
+    <link rel="preload" href="/fonts/inter-400-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/playfair-400-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <script is:inline>
+      const theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      }
+    </script>
+  </head>
+  <body class="min-h-screen bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white transition-colors duration-300">
+
+    <nav class="fixed top-0 left-0 right-0 z-50 flex h-20 items-center justify-between border-b border-gray-200 dark:border-white/10 bg-white/90 dark:bg-black/90 px-6 backdrop-blur-sm lg:px-12">
+      <div class="flex items-center gap-12">
+        <a href="/" class="flex items-center gap-3 text-xl font-medium tracking-tighter">
+          GLOBAL <span class="text-gray-500 dark:text-neutral-500">CLIMAT</span>
+        </a>
+        <div class="hidden gap-8 text-[11px] font-medium uppercase tracking-[0.2em] lg:flex text-gray-600 dark:text-neutral-400">
+          <a href="/#articles" class="hover:opacity-70 transition-opacity">Articles</a>
+          <a href="/about" class="hover:opacity-70 transition-opacity">À Propos</a>
+          <a href="/video" class="hover:opacity-70 transition-opacity">Vidéo</a>
+        </div>
+      </div>
+      <div class="flex items-center gap-4">
+        <ThemeToggle client:idle />
+        <MobileMenu client:visible />
+      </div>
+    </nav>
+
+    <main class="pt-20">
+      <section class="mx-auto max-w-4xl px-6 py-16 lg:py-24">
+        <h1 class="text-4xl font-medium tracking-tight lg:text-5xl font-display mb-10">{title}</h1>
+
+        <div
+          class="lite-youtube relative aspect-video w-full cursor-pointer overflow-hidden rounded-lg bg-black"
+          data-video-id={videoId}
+        >
+          <img
+            src={`https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`}
+            alt={title}
+            class="absolute inset-0 h-full w-full object-cover opacity-80 transition-opacity hover:opacity-100"
+            loading="lazy"
+          />
+          <div class="absolute inset-0 flex items-center justify-center">
+            <svg class="h-16 w-16 text-white drop-shadow-lg" viewBox="0 0 68 48">
+              <path d="M66.52 7.74c-.78-2.93-2.49-5.41-5.42-6.19C55.79.13 34 0 34 0S12.21.13 6.9 1.55c-2.93.78-4.63 3.26-5.42 6.19C.06 13.05 0 24 0 24s.06 10.95 1.48 16.26c.78 2.93 2.49 5.41 5.42 6.19C12.21 47.87 34 48 34 48s21.79-.13 27.1-1.55c2.93-.78 4.64-3.26 5.42-6.19C67.94 34.95 68 24 68 24s-.06-10.95-1.48-16.26z" fill="red"/>
+              <path d="M45 24L27 14v20" fill="white"/>
+            </svg>
+          </div>
+        </div>
+
+        <p class="mt-6 text-sm text-gray-500 dark:text-neutral-400">
+          Click on the video to load it. The YouTube iframe is only loaded on demand for better performance.
+        </p>
+      </section>
+    </main>
+
+    <script is:inline>
+      document.querySelectorAll('.lite-youtube').forEach(el => {
+        el.addEventListener('click', function() {
+          const id = this.dataset.videoId;
+          const iframe = document.createElement('iframe');
+          iframe.src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
+          iframe.setAttribute('frameborder', '0');
+          iframe.setAttribute('allowfullscreen', '');
+          iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+          iframe.className = 'absolute inset-0 h-full w-full';
+          this.innerHTML = '';
+          this.appendChild(iframe);
+          this.style.cursor = 'default';
+        }, { once: true });
+      });
+    </script>
+  </body>
+</html>
